@@ -23,4 +23,4 @@ def openai_image(user_prompt):
         print(f"Error: {str(e)}")
         return "Error generating image."
 
-print(openai_image("software bug Warrior"))
+# print(openai_image("software bug Warrior"))
