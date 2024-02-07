@@ -19,6 +19,6 @@ def url_to_png(image_url, output_path):
         print("Error:", e)
 
 # Example usage
-image_url = Image_gen.openai_image("car in a vally")  # Replace with the actual image URL
+image_url = Image_gen.openai_image("truck in a Snow")  # Replace with the actual image URL
 output_path = "output.png"  # Output file path for the PNG image
 url_to_png(image_url, output_path)
