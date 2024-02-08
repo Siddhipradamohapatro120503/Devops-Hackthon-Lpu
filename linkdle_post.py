@@ -1,70 +1,56 @@
-import requests
+import time
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
-from ln_oauth import auth, headers
+# Path to chromedriver.exe
+chromedriver_path = 'chromedriver.exe'
 
-# Your LinkedIn API credentials
-client_id = '864q0g31l6q2t3'
-client_secret = '83uXYxodL8hqVKKI'
-access_token = 'AQVYht7gMuPTU6BoilGdG4fgUnADwNhEJdzCWkqICwtZ8iruYCV4elnewa653_6bISlY5sGtX_wSla6URrhUi3b67DAh3C0VQt8euJSJAeXAm2kzy73__2CfMaVIo8uixKbEZl1sZOYntMsi4xuu6jlsEnU_oLiM0egSCSKSjA22NxrdNmsz6kK0sdxr5qf9yybgWPAhdi7OgLUdnmKFAvFmV5mrbez0hrJjGhpFZnuXPgIbegRLpFUcYZzzadSwevvwgUpWhNzAZYESJko2qn78LbOLSzi7hYYqAToJb-2WAcZQ3r0ykwqciesA8cM3Z_fyIroJNPBGibgeuj6u3RERLtctlQ'
+# Setup the service
+service = Service(executable_path=chromedriver_path)
 
-# Authentication endpoint
-auth_url = 'https://www.linkedin.com/oauth/v2/accessToken'
+# Start the WebDriver
+driver = webdriver.Chrome(service=service)
 
-# Endpoint for uploading media asset
-upload_url = 'https://api.linkedin.com/v2/assets?action=upload'
+# Open LinkedIn
+driver.get('https://www.linkedin.com')
 
-# Endpoint for posting with media asset
-post_url = 'https://api.linkedin.com/v2/shares'
+# Wait for the page to load
+WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'session_key')))
 
-# Headers for authentication
-headers = {
-    'Content-Type': 'application/x-www-form-urlencoded',
-}
+# Log in
+username = driver.find_element(By.ID, "session_key")
+password = driver.find_element(By.ID, "session_password")
+username.send_keys("YOUR_USERNAME")
+password.send_keys("YOUR_PASSWORD")
+driver.find_element(By.CLASS_NAME, "sign-in-form__submit-button").click()
 
-# Parameters for authentication
-params = {
-    'grant_type': 'client_credentials',
-    'client_id': client_id,
-    'client_secret': client_secret,
-}
+# Wait for the home page to load
+WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME, 'share-box-feed-entry__trigger--v2')))
 
-# Get access token
-response = requests.post(auth_url, headers=headers, params=params)
-access_token = response.json()['access_token']
+# Click on the "Start a post" button
 
-# Upload PNG image
-headers = {
-    'Authorization': f'Bearer {access_token}',
-}
-files = {
-    'file': open('output.png', 'rb')
-}
-response = requests.post(upload_url, headers=headers, files=files)
-media_asset = response.json()
 
-# Create post with media asset
-post_data = {
-    'author': 'urn:li:organization:123456789',
-    'lifecycleState': 'PUBLISHED',
-    'specificContent': {
-        'com.linkedin.ugc.ShareContent': {
-            'media': [
-                {
-                    'status': 'READY',
-                    'media': media_asset['value']
-                }
-            ],
-            'shareCommentary': {
-                'text': 'Check out this image!'
-            }
-        }
-    },
-    'visibility': {
-        'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
-    }
-}
-response = requests.post(auth_url, headers=headers, params=params)
-print("Authentication response status code:", response.status_code)
-print("Authentication response text:", response.text)
-access_token = response.json().get('access_token')
-print("Obtained access token:", access_token)
+# Upload an image
+image_input = driver.find_element(By.XPATH, "//input[@accept='image/*']")
+image_path = "path_to_your_image.png"  # Replace this with the path to your image file
+image_input.send_keys(image_path)
+
+# Enter title
+title_input = driver.find_element(By.XPATH, "//input[@placeholder='Add title']")
+title_input.send_keys("Your Title Here")
+
+# Enter description
+description_input = driver.find_element(By.XPATH, "//div[@role='textbox']")
+description_input.send_keys("Your Description Here")
+
+# Click on the "Post" button
+driver.find_element(By.XPATH, "//button[contains(text(), 'Post')]").click()
+
+# Wait for the post to be uploaded
+time.sleep(145)
+
+# Close the browser
+driver.quit()
