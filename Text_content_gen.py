@@ -13,7 +13,7 @@ def openai_generate(user_prompt):
         completion = client.chat.completions.create(
         model="gpt-3.5-turbo",
          messages=[
-            {"role": "system", "content": "You are a expert Linkedin Content Creator."},
+            {"role": "system", "content": """You are expert Contnet creator For Linkdiln."""},
             {"role": "user", "content": user_prompt},
             ],         
     )
@@ -23,4 +23,4 @@ def openai_generate(user_prompt):
         return "Error generating linkedin content."
 
 
-print(openai_generate("I am a software developer."))
+# print(openai_generate("I am a software developer."))
